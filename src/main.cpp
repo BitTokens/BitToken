@@ -1280,7 +1280,12 @@ int64 GetBlockValue(int nHeight, int64 nFees)
 {
     int64 nSubsidy = 15 * COIN;
 
-    // Subsidy is cut in half every 700000 blocks
+if(pindexBest->nHeight+1 >= 26000 )
+    {
+        nSubsidy = 3 * COIN;
+    }	
+	
+    // Subsidy is cut in half every 86400 blocks
     nSubsidy >>= (nHeight / Params().SubsidyHalvingInterval());
 
     return nSubsidy + nFees;

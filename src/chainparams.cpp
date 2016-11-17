@@ -36,8 +36,7 @@ public:
         nDefaultPort = 8223;
         nRPCPort = 8224;
         bnProofOfWorkLimit = CBigNum(~uint256(0) >> 32);
-        nSubsidyHalvingInterval = 700000;
-
+        nSubsidyHalvingInterval = 86400;
         // Build the genesis block. Note that the output of the genesis coinbase cannot
         // be spent as it did not originally exist in the database.
         //
@@ -99,8 +98,9 @@ public:
         assert(hashGenesisBlock == uint256("0x00000000f7af0d911d094e3583380dfe70a6fc911d69b97786f771344de03b6d"));
         assert(genesis.hashMerkleRoot == uint256("0x02de7740a170214d13cf36d601957fe91ccfaea9efb3f36670ab119fff0478dd"));
 
-        vSeeds.push_back(CDNSSeedData("walletbuilders.com", "node.walletbuilders.com"));
-
+      //  vSeeds.push_back(CDNSSeedData("walletbuilders.com", "node.walletbuilders.com"));
+		vSeeds.push_back(CDNSSeedData("212.91.189.164", "212.91.189.164"));
+		
         base58Prefixes[PUBKEY_ADDRESS] = list_of(25);
         base58Prefixes[SCRIPT_ADDRESS] = list_of(5);
         base58Prefixes[SECRET_KEY] =     list_of(153);
