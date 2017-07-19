@@ -1,9 +1,9 @@
 BitToken integration/staging tree
 ================================
 
-http://www.bittoken.org
+http://www.bittoken.pw
 
-Copyright (c) 2009-2013 BitToken Developers
+Copyright (c) 2009-2017 BitToken Developers
 
 What is BitToken?
 ----------------
@@ -15,7 +15,7 @@ out collectively by the network. BitToken is also the name of the open source
 software which enables the use of this currency.
 
 For more information, as well as an immediately useable, binary version of
-the BitToken client software, see http://www.bittoken.org.
+the BitToken client software, see http://www.bittoken.pw.
 
 License
 -------
