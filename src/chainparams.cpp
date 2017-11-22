@@ -20,6 +20,7 @@ using namespace boost::assign;
 
 unsigned int pnSeed[] =
 {
+	0x54C8119F
 };
 
 class CMainParams : public CChainParams {
@@ -99,7 +100,7 @@ public:
         assert(genesis.hashMerkleRoot == uint256("0x02de7740a170214d13cf36d601957fe91ccfaea9efb3f36670ab119fff0478dd"));
 
       //  vSeeds.push_back(CDNSSeedData("walletbuilders.com", "node.walletbuilders.com"));
-		vSeeds.push_back(CDNSSeedData("212.91.189.164", "212.91.189.164"));
+		vSeeds.push_back(CDNSSeedData("84.200.17.159", "84.200.17.159"));
 		
         base58Prefixes[PUBKEY_ADDRESS] = list_of(25);
         base58Prefixes[SCRIPT_ADDRESS] = list_of(5);

@@ -1295,8 +1295,8 @@ static const int64 nTargetTimespan = 15 * 60;
 static const int64 nTargetSpacing = 3 * 60;
 static const int64 nInterval = nTargetTimespan / nTargetSpacing;
 
-static const int64 nTargetTimespan_Digishield = 3*60 ; 
-static const int64 nTargetSpacing_Digishield = 3*60;  // same as original 3 min block time
+static const int64 nTargetTimespan_Digishield = 3 * 60; 
+static const int64 nTargetSpacing_Digishield = 3 * 60;  // same as original 3 min block time
 static const int64 nInterval_Digishield = nTargetTimespan_Digishield / nTargetSpacing_Digishield;  //every one block
 
 static const int64 nDiffChangeTarget_Digishield = 82000; // Patch effective @ block 82000
@@ -1316,17 +1316,9 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
     bnResult.SetCompact(nBase);
     while (nTime > 0 && bnResult < bnLimit)
     {
-        if(pindexBest->nHeight+1<nDiffChangeTarget_Digishield){
-            // Maximum 400% adjustment...
             bnResult *= 4;
             // ... in best-case exactly 4-times-normal target time
             nTime -= nTargetTimespan*4;
-        } else {
-            // Maximum 10% adjustment...
-            bnResult = (bnResult * 110) / 100;
-            // ... in best-case exactly 4-times-normal target time
-            nTime -= nTargetTimespan_Digishield*4;
-        }
     }
     if (bnResult > bnLimit)
         bnResult = bnLimit;
@@ -1397,16 +1389,18 @@ unsigned int GetNextWorkRequired_V1(const CBlockIndex* pindexLast, const CBlockH
 
 unsigned int GetNextWorkRequired_Digishield(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
 {
+											
+									 
     unsigned int nProofOfWorkLimit = Params().ProofOfWorkLimit().GetCompact();
+
+	int blockstogoback = 0;					   
 
     
     int64 retargetTimespan = nTargetTimespan_Digishield; 
-    int64 retargetInterval = nInterval_Digishield; 
-  
-    
+	int64 retargetSpacing = nTargetSpacing_Digishield;									   
+    int64 retargetInterval = retargetTimespan / retargetSpacing; 										   
     // Genesis block
-    if (pindexLast == NULL)
-        return nProofOfWorkLimit;
+    if (pindexLast == NULL) return nProofOfWorkLimit;
 
     // Only change once per interval
     if ((pindexLast->nHeight+1) % retargetInterval != 0)
@@ -1414,9 +1408,10 @@ unsigned int GetNextWorkRequired_Digishield(const CBlockIndex* pindexLast, const
         if (TestNet())
         {
             // Special difficulty rule for testnet:
-            // If the new block's timestamp is more than 2* nTargetSpacing minutes
+					  
+            // If the new block's timestamp is more than 2* retargetSpacing minutes
             // then allow mining of a min-difficulty block.
-            if (pblock->nTime > pindexLast->nTime + nTargetSpacing_Digishield * 30) 
+            if (pblock->nTime > pindexLast->nTime + nTargetSpacing_Digishield * 2) 
                 return nProofOfWorkLimit;
             else
             {
@@ -1427,14 +1422,14 @@ unsigned int GetNextWorkRequired_Digishield(const CBlockIndex* pindexLast, const
                 return pindex->nBits;
             }
         }
+		 
         return pindexLast->nBits;
     }
 
     // This fixes an issue where a 51% attack can change difficulty at will.
     // Go back the full period unless it's the first retarget after genesis. Code courtesy of Art Forz
-    int blockstogoback = retargetInterval-1;
-    if ((pindexLast->nHeight+1) != retargetInterval)
-        blockstogoback = retargetInterval;
+    blockstogoback = retargetInterval-1;
+    if ((pindexLast->nHeight+1) != retargetInterval) blockstogoback = retargetInterval;
 
 
 
@@ -1447,33 +1442,37 @@ unsigned int GetNextWorkRequired_Digishield(const CBlockIndex* pindexLast, const
     // Limit adjustment step
 	int64 nActualTimespan = pindexLast->GetBlockTime() - pindexFirst->GetBlockTime();
     printf("  nActualTimespan = %"PRI64d"  before bounds\n", nActualTimespan);
+
+
+
+    CBigNum bnNew;
+    bnNew.SetCompact(pindexLast->nBits);									
     
-    //DigiShield implementation - thanks to RealSolid & WDC for this code
-    // amplitude filter - thanks to daft27 for this code
-    nActualTimespan = retargetTimespan + (nActualTimespan - retargetTimespan)/8;
 
     if (nActualTimespan < (retargetTimespan - (retargetTimespan/4)) ) nActualTimespan = (retargetTimespan - (retargetTimespan/4));
     if (nActualTimespan > (retargetTimespan + (retargetTimespan/2)) ) nActualTimespan = (retargetTimespan + (retargetTimespan/2));
 
 
     // Retarget
-    CBigNum bnNew;
-    bnNew.SetCompact(pindexLast->nBits);
-    bnNew *= nActualTimespan;
-    bnNew /= nTargetTimespan;
 
-    if (bnNew > Params().ProofOfWorkLimit())
-        bnNew = Params().ProofOfWorkLimit();
-	
+    bnNew *= nActualTimespan;
+    bnNew /= retargetTimespan;
+
+
     /// debug print
     printf("GetNextWorkRequired DIGISHIELD RETARGET 3 MINUTES\n");
     printf("nTargetTimespan = %"PRI64d"    nActualTimespan = %"PRI64d"\n", nTargetTimespan, nActualTimespan);
     printf("Before: %08x  %s\n", pindexLast->nBits, CBigNum().SetCompact(pindexLast->nBits).getuint256().ToString().c_str());
     printf("After:  %08x  %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
 	
+    if (bnNew > Params().ProofOfWorkLimit())
+        bnNew = Params().ProofOfWorkLimit();
+								   
+
+
+
     return bnNew.GetCompact();
 }
-
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
 {
